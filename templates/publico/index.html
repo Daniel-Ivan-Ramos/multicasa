@@ -35,12 +35,18 @@
                     <div class="col-lg-4 col-md-6 mb-4">
                         <div class="card shadow-sm h-100">
                             {% if casa.imagenes.first %}
-                                <img src="{{ casa.imagenes.first.imagen.url }}" class="card-img-top"
-                                     alt="{{ casa.imagenes.first.texto_alternativo }}" style="height: 250px; object-fit: cover;">
-                            {% else %}
-                                <img src="https://via.placeholder.com/300x200.png?text=Sin+Imagen" class="card-img-top"
-                                     alt="Imagen no disponible" style="height: 250px; object-fit: cover;">
-                            {% endif %}
+                            {% with primera_imagen=casa.imagenes.first %}
+                            <img src="{{ primera_imagen.get_image_src }}" 
+                                class="card-img-top"
+                                alt="{{ primera_imagen.texto_alternativo|default:'Imagen de propiedad' }}" 
+                                style="height: 250px; object-fit: cover;">
+                            {% endwith %}
+                        {% else %}
+                            <img src="https://via.placeholder.com/300x200.png?text=Sin+Imagen" 
+                                class="card-img-top"
+                                alt="Imagen no disponible" 
+                                style="height: 250px; object-fit: cover;">
+                        {% endif %}
                             <div class="card-body">
                                 <h5 class="card-title">{{ casa.titulo }}</h5>
                                 <p class="card-text fs-5 fw-bold text-success">${{ casa.precio }}</p>

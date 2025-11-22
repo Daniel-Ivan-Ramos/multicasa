@@ -1,0 +1,174 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+{% block title %}{{ titulo_pagina }}{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <h1 class="h2 mb-4">Dashboard de Administración</h1>
+
+        <div class="row">
+
+            <!-- Primera gráfica - Ocupa 6 columnas en pantallas medianas y grandes -->
+            <div class="col-xl-6 col-lg-6 col-md-12 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">Casas por Estatus</h5>
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
+                            <canvas id="graficoEstatus"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Segunda gráfica - Ocupa 6 columnas en pantallas medianas y grandes -->
+            <div class="col-xl-6 col-lg-6 col-md-12 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0">Casas por Rango de Costo</h5>
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
+                            <canvas id="graficoCostos"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Configuración común para ambas gráficas
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 15
+                        }
+                    }
+                }
+            };
+
+            // --- Script para Gráfico 1 (Estatus) ---
+            const ctxEstatus = document.getElementById('graficoEstatus');
+
+            const labelsEstatus = {{ estatus_labels|safe }};
+            const dataEstatus = {{ estatus_valores|safe }};
+
+            new Chart(ctxEstatus, {
+                type: 'doughnut',
+                data: {
+                    labels: labelsEstatus,
+                    datasets: [{
+                        label: 'Cantidad de Casas',
+                        data: dataEstatus,
+                        backgroundColor: [
+                            'rgb(40, 167, 69)',  // Verde para "En Venta"
+                            'rgb(220, 53, 69)',   // Rojo para "Vendida"
+                            'rgb(255, 193, 7)',   // Amarillo por si hay más categorías
+                            'rgb(23, 162, 184)',  // Azul claro
+                            'rgb(108, 117, 125)'  // Gris
+                        ],
+                        borderColor: 'white',
+                        borderWidth: 2,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    plugins: {
+                        ...commonOptions.plugins,
+                        title: {
+                            display: true,
+                            text: 'Distribución por Estatus'
+                        }
+                    }
+                }
+            });
+
+            // --- Script para Gráfico 2 (Costos) ---
+            const ctxCostos = document.getElementById('graficoCostos');
+
+            const labelsCostos = {{ costo_labels|safe }};
+            const dataCostos = {{ costo_valores|safe }};
+
+            new Chart(ctxCostos, {
+                type: 'bar',
+                data: {
+                    labels: labelsCostos,
+                    datasets: [{
+                        label: 'Cantidad de Casas',
+                        data: dataCostos,
+                        backgroundColor: [
+                            'rgba(0, 123, 255, 0.7)',
+                            'rgba(40, 167, 69, 0.7)',
+                            'rgba(255, 193, 7, 0.7)',
+                            'rgba(220, 53, 69, 0.7)',
+                            'rgba(108, 117, 125, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(0, 123, 255, 1)',
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(220, 53, 69, 1)',
+                            'rgba(108, 117, 125, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            },
+                            title: {
+                                display: true,
+                                text: 'Cantidad de Casas'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Rangos de Costo'
+                            }
+                        }
+                    },
+                    plugins: {
+                        ...commonOptions.plugins,
+                        title: {
+                            display: true,
+                            text: 'Distribución por Precio'
+                        }
+                    }
+                }
+            });
+
+        });
+    </script>
+
+    <style>
+        .chart-container {
+            min-height: 300px;
+        }
+        .card {
+            min-height: 400px;
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+    </style>
+{% endblock %}

@@ -11,8 +11,9 @@
                     <div class="carousel-inner rounded shadow-sm">
                         {% for img in casa.imagenes.all %}
                             <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                <img src="{{ img.imagen.url }}" class="d-block w-100"
-                                     style="height: 500px; object-fit: cover;" alt="{{ img.texto_alternativo }}">
+                                <img src="{{ img.get_image_src }}" class="d-block w-100"
+                                    style="height: 500px; object-fit: cover;" 
+                                    alt="{{ img.texto_alternativo|default:'Imagen de propiedad' }}">
                             </div>
                         {% endfor %}
                     </div>

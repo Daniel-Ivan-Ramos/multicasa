@@ -136,7 +136,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # -----------------------------------------------------------------
 # Configuración de Email (Modo Desarrollo)
 # -----------------------------------------------------------------
-# Django no enviará un email real. En su lugar, lo imprimirá
-# en la consola donde 'runserver' se está ejecutando.
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Configuración de Email para Gmail
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'contactomulticasa@gmail.com'  # Cambia por tu email real
+EMAIL_HOST_PASSWORD = 'viwo ozig hkss vxpz'  # ← PASO IMPORTANTE
+DEFAULT_FROM_EMAIL = 'contactomulticasa@gmail.com'  # Mismo que EMAIL_HOST_USER
 # -----------------------------------------------------------------

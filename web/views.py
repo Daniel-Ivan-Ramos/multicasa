@@ -59,12 +59,11 @@ def homepage(request):
         except Exception as e:
             messages.error(request, f'Hubo un error al enviar el mensaje: {e}')
 
-        # Redirigimos a 'homepage' para evitar re-envíos (Patrón Post-Redirect-Get)
         return redirect('homepage')
 
     # --- 2. LÓGICA DE BÚSQUEDA (SI ES GET) ---
-    # (Esta parte se mantiene igual que antes)
-    casas = Casa.objects.filter(estatus='en venta').order_by('-fecha_publicacion')
+    # CAMBIO: Agregar prefetch_related para optimizar consultas de imágenes
+    casas = Casa.objects.filter(estatus='en venta').order_by('-fecha_publicacion').prefetch_related('imagenes')
 
     query = request.GET.get('q')
     if query:
@@ -97,8 +96,8 @@ def detalle_casa(request, id_casa):
     """
     Muestra el detalle completo de una casa específica.
     """
-    # Busca la casa por ID o devuelve error 404 si no existe
-    casa = get_object_or_404(Casa, pk=id_casa)
+    # CAMBIO: Agregar prefetch_related para cargar todas las imágenes
+    casa = get_object_or_404(Casa.objects.prefetch_related('imagenes'), pk=id_casa)
 
     contexto = {
         'casa': casa,
@@ -111,8 +110,8 @@ def generar_pdf_casa(request, id_casa):
     """
     Genera la ficha técnica de una casa en formato PDF.
     """
-    # 1. Obtenemos la casa
-    casa = get_object_or_404(Casa, pk=id_casa)
+    # 1. Obtenemos la casa con sus imágenes
+    casa = get_object_or_404(Casa.objects.prefetch_related('imagenes'), pk=id_casa)
 
     # 2. Definimos el contexto (datos que irán al HTML)
     contexto = {
@@ -233,22 +232,20 @@ def contact_view(request):
 
 # --- VISTA DE API REST ---
 
-@api_view(['GET'])  # Esta vista solo aceptará peticiones GET
+@api_view(['GET'])
 def casa_api_list(request):
     """
     API REST para listar todas las casas en venta.
     """
     try:
-        # 1. Obtenemos las casas
-        casas = Casa.objects.filter(estatus='en venta')
+        # 1. Obtenemos las casas con sus imágenes
+        casas = Casa.objects.filter(estatus='en venta').prefetch_related('imagenes')
 
         # 2. Las pasamos por el serializador
-        # 'many=True' porque estamos serializando una lista de objetos
         serializer = CasaListSerializer(casas, many=True)
 
         # 3. Devolvemos la respuesta JSON
         return Response(serializer.data)
 
     except Exception as e:
-        # Devolvemos un error 500 si algo falla
         return Response({'error': str(e)}, status=500)
